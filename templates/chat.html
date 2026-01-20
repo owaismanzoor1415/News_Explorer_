@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>GenAI Fake News Detector</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <h2>Real/Fake News GenAI</h2>
+    <button class="new-chat" onclick="newChat()">+ New chat</button>
+
+    <div class="chat-history" id="history"></div>
+  </aside>
+
+  <!-- Main -->
+  <main class="chat-area">
+    <header class="chat-header">
+      <h1>Real / Fake News (Title Based)</h1>
+    </header>
+
+    <div id="messages" class="messages"></div>
+
+    <div class="input-area">
+      <input id="query" placeholder="Enter news title..." />
+      <button onclick="send()">➤</button>
+    </div>
+  </main>
+
+</div>
+
+<script>
+let history = JSON.parse(localStorage.getItem("history")) || [];
+
+function renderHistory(){
+  const h = document.getElementById("history");
+  h.innerHTML = "<h3>Recent Searches</h3>";
+  history.slice().reverse().forEach(item => {
+    h.innerHTML += `<div class="history-item" onclick="reuse('${item.replace(/'/g,"\\'")}')">${item}</div>`;
+  });
+}
+
+function reuse(text){
+  document.getElementById("query").value = text;
+}
+
+function newChat(){
+  document.getElementById("messages").innerHTML = "";
+}
+
+function send(){
+  let q = document.getElementById("query").value;
+  if(!q) return;
+
+  if(!history.includes(q)){
+    history.push(q);
+    localStorage.setItem("history", JSON.stringify(history));
+    renderHistory();
+  }
+
+  const messages = document.getElementById("messages");
+
+  messages.innerHTML += `<div class="message user">${q}</div>`;
+
+  fetch("/chat",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({query:q})
+  })
+  .then(res=>res.json())
+  .then(data=>{
+    messages.innerHTML += `
+      <div class="message bot">
+        <b>${data.label}</b> (${data.confidence}%)
+        <br>${data.reason}
+        <hr>
+        <b>Article Content/Text:</b>
+        <p>${data.matched_text}</p>
+      </div>`;
+    messages.scrollTop = messages.scrollHeight;
+  });
+
+  document.getElementById("query").value="";
+}
+
+renderHistory();
+</script>
+
+</body>
+</html>
