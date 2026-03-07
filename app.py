@@ -1,81 +1,121 @@
 from flask import Flask, render_template, request, jsonify
-import pickle, faiss, numpy as np, re
-from sentence_transformers import SentenceTransformer
+import requests
+import os
+from dotenv import load_dotenv
+import time
+
+load_dotenv()
 
 app = Flask(__name__)
 
-# Load models
-embedder = SentenceTransformer("all-MiniLM-L6-v2")
-index = faiss.read_index("vector.index")
+# API keys
+NEWS_API_KEY = os.getenv("NEWS_API_KEY")
+HUGGINGFACE_API_KEY = os.getenv("HUGGINGFACE_API_KEY")
 
-with open("news.pkl", "rb") as f:
-    df = pickle.load(f)
+# Hugging Face model endpoint
+HF_API_URL = "https://router.huggingface.co/hf-inference/models/facebook/bart-large-cnn"
 
-with open("model.pkl", "rb") as f:
-    clf, vectorizer = pickle.load(f)
+headers = {
+    "Authorization": f"Bearer {HUGGINGFACE_API_KEY}",
+    "Content-Type": "application/json"
+}
 
-# ---------- Helper ----------
-def clean_title(text):
-    text = str(text).lower()
-    text = re.sub(r"\[.*?\]", "", text)
-    text = re.sub(r"\|.*", "", text)
-    text = re.sub(r"[^a-z\s]", "", text)
-    return text.strip()
 
-# ---------- Routes ----------
+
+# ---------------- Fetch News ----------------
+def get_news(query):
+
+    url = f"https://newsapi.org/v2/everything?q={query}&language=en&sortBy=publishedAt&apiKey={NEWS_API_KEY}"
+
+    try:
+        response = requests.get(url)
+        data = response.json()
+
+        articles = []
+
+        if data.get("status") == "ok":
+
+            for article in data.get("articles", [])[:10]:
+
+                articles.append({
+                    "title": article.get("title", "No title available"),
+                    "source": article.get("source", {}).get("name", "Unknown source"),
+                    "url": article.get("url", "#")
+                })
+
+        return articles
+
+    except Exception as e:
+        print("News API error:", e)
+        return []
+
+
+# ---------------- AI Summary (Hugging Face) ----------------
+def generate_summary(news):
+
+    if not news:
+        return "No news available."
+
+    try:
+
+        text = " ".join([article["title"] for article in news])
+
+        payload = {
+            "inputs": text,
+            "parameters": {
+                "max_length": 150,
+                "min_length": 80
+            }
+        }
+
+        response = requests.post(HF_API_URL, headers=headers, json=payload)
+
+        data = response.json()
+
+        print("HF response:", data)   # debugging
+
+        # successful response
+        if isinstance(data, list):
+            return data[0]["summary_text"]
+
+        # model loading
+        if "error" in data and "loading" in data["error"].lower():
+            return "AI model is starting. Please try again in a few seconds."
+
+        # other error
+        return "AI summary unavailable."
+
+    except Exception as e:
+        print("HuggingFace error:", e)
+        return "AI summary unavailable."
+
+# ---------------- Routes ----------------
 @app.route("/")
 def home():
     return render_template("chat.html")
 
+
 @app.route("/chat", methods=["POST"])
 def chat():
-    raw_title = request.json["query"]
-    title = clean_title(raw_title)
 
-    # Semantic search
-    q_emb = embedder.encode([title])
-    distances, indices = index.search(np.array(q_emb), k=3)
+    query = request.json.get("query")
 
-    matched_rows = df.iloc[indices[0]]
-    top_match = matched_rows.iloc[0]
+    if not query:
+        return jsonify({
+            "news": [],
+            "summary": "Please enter a topic."
+        })
 
-    matched_title = top_match["title"]
-    matched_label = top_match["label"]
-    matched_text = (
-        top_match["text"]
-        if "text" in top_match.index
-        else "No article text available."
-    )
+    news = get_news(query)
 
-    # -------- Decision logic --------
-    if distances[0][0] < 0.8:
-        label = matched_label.upper()
-        confidence = 95.0
-        reason = "Strong match found in dataset"
-    else:
-        vec = vectorizer.transform([title])
-        prob = clf.predict_proba(vec)[0]
-
-        real_prob = prob[1]
-        fake_prob = prob[0]
-        confidence = round(max(prob) * 100, 2)
-
-        if real_prob > 0.6:
-            label = "REAL"
-        elif fake_prob > 0.6:
-            label = "FAKE"
-        else:
-            label = "LIKELY REAL (Opinion / Article)"
-
-        reason = "Predicted using ML + semantic similarity"
+    summary = generate_summary(news)
 
     return jsonify({
-        "label": label,
-        "confidence": confidence,
-        "reason": reason,
-        "matched_title": matched_title,
-        "matched_text": matched_text
+        "news": news,
+        "summary": summary
     })
 
+
+# ---------------- Run ----------------
 if __name__ == "__main__":
     app.run(debug=True)

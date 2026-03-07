@@ -1,6 +1,3 @@
-flask
-pandas
-numpy
-scikit-learn
-sentence-transformers
-faiss-cpu
+Flask
+requests
+python-dotenv
