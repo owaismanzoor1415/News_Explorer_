@@ -3,12 +3,11 @@
 
 <head>
 <meta charset="UTF-8">
-<title>GenAI News Explorer</title>
+<title>News Explorer</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link rel="stylesheet" href="/static/css/style.css">
-
 <link rel="manifest" href="/static/manifest.json">
 
 <link rel="stylesheet"
@@ -19,6 +18,8 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
 <body>
 
 <div class="app">
+
+<div id="overlay"></div>
 
 <!-- Sidebar -->
 <aside class="sidebar" id="sidebar">
@@ -32,7 +33,6 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
 <div class="chat-history" id="history"></div>
 
 </aside>
-
 
 <!-- Chat Area -->
 <main class="chat-area">
@@ -53,6 +53,15 @@ Install App
 
 <div id="messages" class="messages"></div>
 
+<!-- Trending suggestions -->
+<div class="trending">
+
+<button onclick="quickSearch('World News')">World</button>
+<button onclick="quickSearch('India News')">India</button>
+<button onclick="quickSearch('Technology News')">Tech</button>
+<button onclick="quickSearch('Sports News')">Sports</button>
+
+</div>
 
 <div class="input-area">
 
@@ -72,7 +81,6 @@ onkeypress="if(event.key==='Enter') send()"
 
 </div>
 
-
 <script src="/static/js/chat.js"></script>
 
 <script>
@@ -86,7 +94,6 @@ let deferredPrompt;
 window.addEventListener('beforeinstallprompt',(e)=>{
 
 e.preventDefault();
-
 deferredPrompt=e;
 
 document.getElementById("installBtn").style.display="block";
@@ -96,23 +103,10 @@ document.getElementById("installBtn").style.display="block";
 document.getElementById("installBtn").addEventListener("click",async()=>{
 
 deferredPrompt.prompt();
-
 await deferredPrompt.userChoice;
 
-deferredPrompt=null;
-
 });
 
-</script>
-
-<script>
-if ("serviceWorker" in navigator) {
-window.addEventListener("load", () => {
-navigator.serviceWorker.register("/static/service-worker.js")
-.then(reg => console.log("Service Worker Registered"))
-.catch(err => console.log("Service Worker Failed", err));
-});
-}
 </script>
 
 </body>

@@ -6,9 +6,8 @@ font-family:system-ui,-apple-system,BlinkMacSystemFont;
 body{
 margin:0;
 background:#f4f6f8;
+overflow:hidden;
 }
-
-/* Layout */
 
 .app{
 display:flex;
@@ -22,6 +21,17 @@ width:260px;
 background:#202123;
 color:white;
 padding:20px;
+position:fixed;
+left:0;
+top:0;
+height:100%;
+transform:translateX(-100%);
+transition:0.3s;
+z-index:1000;
+}
+
+.sidebar.active{
+transform:translateX(0);
 }
 
 .sidebar h2{
@@ -40,13 +50,27 @@ border-radius:6px;
 cursor:pointer;
 }
 
-/* Chat history */
+/* Overlay */
 
-.chat-history{
-margin-top:10px;
+#overlay{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.4);
+opacity:0;
+pointer-events:none;
+transition:0.3s;
+z-index:900;
 }
 
-/* History item */
+#overlay.active{
+opacity:1;
+pointer-events:auto;
+}
+
+/* History */
 
 .history-item{
 padding:8px 10px;
@@ -61,44 +85,9 @@ justify-content:space-between;
 align-items:center;
 }
 
-.history-item:hover{
-background:#444654;
-}
-
-/* History text */
-
-.history-item span{
-flex:1;
-overflow:hidden;
-text-overflow:ellipsis;
-white-space:nowrap;
-}
-
-/* Delete icon */
-
 .delete-icon{
-margin-left:12px;
-cursor:pointer;
 color:#ff6b6b;
-font-size:14px;
-}
-
-.delete-icon:hover{
-color:#ff2b2b;
-}
-
-/* Clear button */
-
-.clear-btn{
-background:none;
-border:none;
-color:#bbb;
 cursor:pointer;
-font-size:13px;
-}
-
-.clear-btn:hover{
-color:white;
 }
 
 /* Chat */
@@ -107,6 +96,8 @@ color:white;
 flex:1;
 display:flex;
 flex-direction:column;
+margin-left:0;
+width:100%;
 }
 
 /* Header */
@@ -121,7 +112,6 @@ gap:10px;
 }
 
 .menu-btn{
-display:none;
 background:none;
 border:none;
 font-size:22px;
@@ -135,14 +125,13 @@ color:white;
 border:none;
 padding:6px 12px;
 border-radius:6px;
-cursor:pointer;
 }
 
 /* Messages */
 
 .messages{
 flex:1;
-padding:25px;
+padding:20px;
 overflow-y:auto;
 }
 
@@ -172,6 +161,39 @@ margin-top:10px;
 box-shadow:0 2px 8px rgba(0,0,0,0.08);
 }
 
+/* Skeleton */
+
+.skeleton{
+height:14px;
+background:#e5e7eb;
+border-radius:6px;
+margin:8px 0;
+animation:pulse 1.5s infinite;
+}
+
+@keyframes pulse{
+0%{opacity:0.6}
+50%{opacity:1}
+100%{opacity:0.6}
+}
+
+/* Trending */
+
+.trending{
+padding:10px 20px;
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+}
+
+.trending button{
+border:none;
+background:#e2e8f0;
+padding:6px 12px;
+border-radius:20px;
+cursor:pointer;
+}
+
 /* Input */
 
 .input-area{
@@ -197,52 +219,8 @@ background:#10a37f;
 color:white;
 }
 
-/* MOBILE */
-
-@media (max-width:768px){
-
-.menu-btn{
-display:block;
-}
-
-.sidebar{
-position:fixed;
-left:-260px;
-top:0;
-height:100%;
-transition:0.3s;
-z-index:1000;
-}
-
-.sidebar.active{
-left:0;
-}
-
-.app{
-flex-direction:column;
-}
-
-.messages{
-padding:15px;
-}
-
-.message{
-max-width:90%;
-}
-
-}
-
-@media (max-width:480px){
-
-.input-area{
-position:fixed;
-bottom:0;
-left:0;
-width:100%;
-}
-
-.messages{
-padding-bottom:80px;
-}
-
+.loading{
+display:flex;
+align-items:center;
+gap:10px;
 }

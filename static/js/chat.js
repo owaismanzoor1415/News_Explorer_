@@ -1,40 +1,67 @@
 let history = JSON.parse(localStorage.getItem("history")) || [];
 
-// Mobile sidebar toggle
 function toggleSidebar(){
 
-const sidebar = document.getElementById("sidebar");
+const sidebar=document.getElementById("sidebar");
+const overlay=document.getElementById("overlay");
 
 sidebar.classList.toggle("active");
+overlay.classList.toggle("active");
 
-/* push history state so back button can close sidebar */
 if(sidebar.classList.contains("active")){
-history.pushState({sidebar:true}, "");
+window.history.pushState({sidebar:true},"");
 }
 
 }
 
-// Render search history
+function closeSidebar(){
+
+document.getElementById("sidebar").classList.remove("active");
+document.getElementById("overlay").classList.remove("active");
+
+}
+
+document.getElementById("overlay").onclick=closeSidebar;
+
+window.addEventListener("popstate",()=>{
+
+const sidebar=document.getElementById("sidebar");
+
+if(sidebar.classList.contains("active")){
+closeSidebar();
+}
+
+});
+
+let touchStartX=0;
+
+document.addEventListener("touchstart",e=>{
+touchStartX=e.touches[0].clientX;
+});
+
+document.addEventListener("touchmove",e=>{
+
+let touchEndX=e.touches[0].clientX;
+
+if(touchStartX-touchEndX>80){
+closeSidebar();
+}
+
+});
+
 function renderHistory(){
 
-const h = document.getElementById("history");
+const h=document.getElementById("history");
 
-h.innerHTML = `
-
-<div style="display:flex;justify-content:space-between;align-items:center;">
-<h3>Recent Searches</h3>
-<button onclick="clearHistory()" class="clear-btn">Clear</button>
-</div>
-`;
+h.innerHTML=`<h3>Recent Searches</h3>`;
 
 history.slice().reverse().forEach((item,index)=>{
 
-h.innerHTML += `
+h.innerHTML+=`
 
 <div class="history-item">
 
-<span onclick="reuse('${item.replace(/'/g,"\'")}')">
-${item} </span>
+<span onclick="reuse('${item}')">${item}</span>
 
 <i class="fa-solid fa-xmark delete-icon"
 onclick="deleteItem(${history.length-1-index})"></i>
@@ -46,7 +73,6 @@ onclick="deleteItem(${history.length-1-index})"></i>
 
 }
 
-// Delete single history item
 function deleteItem(index){
 
 history.splice(index,1);
@@ -57,53 +83,44 @@ renderHistory();
 
 }
 
-// Clear all history
-function clearHistory(){
-
-history = [];
-
-localStorage.removeItem("history");
-
-renderHistory();
-
-}
-
-// Reuse search
 function reuse(text){
 document.getElementById("query").value=text;
 }
 
-// Clear chat
 function newChat(){
 document.getElementById("messages").innerHTML="";
 }
 
-// Send query
+function quickSearch(topic){
+
+document.getElementById("query").value=topic;
+
+send();
+
+}
+
 function send(){
 
-let q = document.getElementById("query").value;
+let q=document.getElementById("query").value;
 
 if(!q) return;
 
-// Save search
 if(!history.includes(q)){
 history.push(q);
 localStorage.setItem("history",JSON.stringify(history));
 renderHistory();
 }
 
-const messages = document.getElementById("messages");
+const messages=document.getElementById("messages");
 
-// User message
-messages.innerHTML += `
+messages.innerHTML+=`
 
 <div class="message user">
 ${q}
 </div>
 `;
 
-// Loading
-messages.innerHTML += `
+messages.innerHTML+=`
 
 <div class="message bot loading">
 <i class="fa-solid fa-spinner fa-spin"></i> Fetching latest news...
@@ -126,7 +143,7 @@ let newsHTML="";
 
 data.news.forEach(article=>{
 
-newsHTML += `
+newsHTML+=`
 
 <div class="news-card">
 
@@ -143,13 +160,13 @@ Read full article
 
 });
 
-messages.innerHTML += `
+messages.innerHTML+=`
 
 <div class="message bot">
 
 <b>AI Summary</b>
 
-<p>${data.summary}</p>
+<p id="typing"></p>
 
 <hr>
 
@@ -158,20 +175,9 @@ ${newsHTML}
 </div>
 `;
 
-messages.scrollTop = messages.scrollHeight;
+typeText(data.summary);
 
-})
-
-.catch(() => {
-
-document.querySelector(".loading").remove();
-
-messages.innerHTML += `
-
-<div class="message bot">
-Error fetching news.
-</div>
-`;
+messages.scrollTop=messages.scrollHeight;
 
 });
 
@@ -179,18 +185,28 @@ document.getElementById("query").value="";
 
 }
 
-// Load history on start
-renderHistory();
+function typeText(text){
 
+let i=0;
 
-/* Handle mobile back button */
+const el=document.getElementById("typing");
 
-window.addEventListener("popstate", function () {
+function typing(){
 
-const sidebar = document.getElementById("sidebar");
+if(i<text.length){
 
-if(sidebar.classList.contains("active")){
-sidebar.classList.remove("active");
+el.innerHTML+=text.charAt(i);
+
+i++;
+
+setTimeout(typing,15);
+
 }
 
-});
+}
+
+typing();
+
+}
+
+renderHistory();
