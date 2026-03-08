@@ -2,7 +2,16 @@ let history = JSON.parse(localStorage.getItem("history")) || [];
 
 // Mobile sidebar toggle
 function toggleSidebar(){
-document.getElementById("sidebar").classList.toggle("active");
+
+const sidebar = document.getElementById("sidebar");
+
+sidebar.classList.toggle("active");
+
+/* push history state so back button can close sidebar */
+if(sidebar.classList.contains("active")){
+history.pushState({sidebar:true}, "");
+}
+
 }
 
 // Render search history
@@ -172,3 +181,16 @@ document.getElementById("query").value="";
 
 // Load history on start
 renderHistory();
+
+
+/* Handle mobile back button */
+
+window.addEventListener("popstate", function () {
+
+const sidebar = document.getElementById("sidebar");
+
+if(sidebar.classList.contains("active")){
+sidebar.classList.remove("active");
+}
+
+});
