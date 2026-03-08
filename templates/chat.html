@@ -5,7 +5,11 @@
 <meta charset="UTF-8">
 <title>GenAI News Explorer</title>
 
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <link rel="stylesheet" href="/static/css/style.css">
+
+<link rel="manifest" href="/static/manifest.json">
 
 <link rel="stylesheet"
 href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
@@ -17,7 +21,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
 <div class="app">
 
 <!-- Sidebar -->
-<aside class="sidebar">
+<aside class="sidebar" id="sidebar">
 
 <h2><i class="fa-solid fa-newspaper"></i> News Explorer</h2>
 
@@ -34,7 +38,17 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
 <main class="chat-area">
 
 <header class="chat-header">
+
+<button class="menu-btn" onclick="toggleSidebar()">
+<i class="fa-solid fa-bars"></i>
+</button>
+
 <h1>Real-Time News Search</h1>
+
+<button id="installBtn" class="install-btn" style="display:none;">
+Install App
+</button>
+
 </header>
 
 <div id="messages" class="messages"></div>
@@ -59,177 +73,46 @@ onkeypress="if(event.key==='Enter') send()"
 </div>
 
 
+<script src="/static/js/chat.js"></script>
 
 <script>
 
-let history = JSON.parse(localStorage.getItem("history")) || [];
+if ('serviceWorker' in navigator) {
+navigator.serviceWorker.register('/static/service-worker.js');
+}
 
+let deferredPrompt;
 
-function renderHistory(){
+window.addEventListener('beforeinstallprompt',(e)=>{
 
-const h = document.getElementById("history");
+e.preventDefault();
 
-h.innerHTML = `
-<div style="display:flex;justify-content:space-between;align-items:center;">
-<h3>Recent Searches</h3>
-<button onclick="clearHistory()" class="clear-btn">Clear</button>
-</div>
-`;
+deferredPrompt=e;
 
-history.slice().reverse().forEach((item,index)=>{
-
-h.innerHTML += `
-<div class="history-item">
-
-<span onclick="reuse('${item.replace(/'/g,"\\'")}')">
-${item}
-</span>
-
-<i class="fa-solid fa-xmark delete-icon"
-onclick="deleteItem(${history.length-1-index})"></i>
-
-</div>
-`;
+document.getElementById("installBtn").style.display="block";
 
 });
 
-}
+document.getElementById("installBtn").addEventListener("click",async()=>{
 
+deferredPrompt.prompt();
 
-function deleteItem(index){
+await deferredPrompt.userChoice;
 
-history.splice(index,1);
-
-localStorage.setItem("history",JSON.stringify(history));
-
-renderHistory();
-
-}
-
-
-function clearHistory(){
-
-history=[];
-
-localStorage.removeItem("history");
-
-renderHistory();
-
-}
-
-
-function reuse(text){
-document.getElementById("query").value=text;
-}
-
-
-function newChat(){
-document.getElementById("messages").innerHTML="";
-}
-
-
-function send(){
-
-let q=document.getElementById("query").value;
-
-if(!q) return;
-
-
-if(!history.includes(q)){
-history.push(q);
-localStorage.setItem("history",JSON.stringify(history));
-renderHistory();
-}
-
-
-const messages=document.getElementById("messages");
-
-
-messages.innerHTML+=`
-<div class="message user animate">
-${q}
-</div>
-`;
-
-
-messages.innerHTML+=`
-<div class="message bot loading animate">
-<i class="fa-solid fa-spinner fa-spin"></i> Fetching latest news...
-</div>
-`;
-
-
-messages.scrollTop=messages.scrollHeight;
-
-
-fetch("/chat",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({query:q})
-})
-
-.then(res=>res.json())
-
-.then(data=>{
-
-document.querySelector(".loading").remove();
-
-
-let newsHTML="";
-
-
-data.news.forEach(article=>{
-
-newsHTML+=`
-<div class="news-card">
-
-<h4>${article.title}</h4>
-
-<p>
-<i class="fa-solid fa-globe"></i>
-${article.source}
-</p>
-
-<a href="${article.url}" target="_blank">
-<i class="fa-solid fa-arrow-up-right-from-square"></i>
-Read full article
-</a>
-
-</div>
-`;
+deferredPrompt=null;
 
 });
 
+</script>
 
-messages.innerHTML+=`
-<div class="message bot animate">
-
-<b><i class="fa-solid fa-robot"></i> AI Summary</b>
-
-<p>${data.summary}</p>
-
-<hr>
-
-<b><i class="fa-solid fa-bolt"></i> Latest News</b>
-
-${newsHTML}
-
-</div>
-`;
-
-
-messages.scrollTop=messages.scrollHeight;
-
+<script>
+if ("serviceWorker" in navigator) {
+window.addEventListener("load", () => {
+navigator.serviceWorker.register("/static/service-worker.js")
+.then(reg => console.log("Service Worker Registered"))
+.catch(err => console.log("Service Worker Failed", err));
 });
-
-
-document.getElementById("query").value="";
-
 }
-
-
-renderHistory();
-
 </script>
 
 </body>

@@ -1,228 +1,90 @@
 *{
-    box-sizing:border-box;
-    font-family:system-ui,-apple-system,BlinkMacSystemFont;
+box-sizing:border-box;
+font-family:system-ui,-apple-system,BlinkMacSystemFont;
 }
 
 body{
-    margin:0;
-    background:#f4f6f8;
+margin:0;
+background:#f4f6f8;
 }
 
 /* Layout */
 
 .app{
-    display:flex;
-    height:100vh;
+display:flex;
+height:100vh;
 }
 
 /* Sidebar */
 
 .sidebar{
-    width:260px;
-    background:#202123;
-    color:white;
-    padding:20px;
+width:260px;
+background:#202123;
+color:white;
+padding:20px;
 }
 
 .sidebar h2{
-    margin-top:0;
-    font-size:20px;
+margin-top:0;
+font-size:20px;
 }
 
 .new-chat{
-    width:100%;
-    padding:10px;
-    margin:15px 0;
-    background:#10a37f;
-    color:white;
-    border:none;
-    border-radius:6px;
-    cursor:pointer;
-    transition:0.2s;
-}
-
-.new-chat:hover{
-    background:#0d8a6b;
+width:100%;
+padding:10px;
+margin:15px 0;
+background:#10a37f;
+color:white;
+border:none;
+border-radius:6px;
+cursor:pointer;
 }
 
 /* Chat history */
 
 .chat-history{
-    margin-top:10px;
+margin-top:10px;
 }
 
-/* Interactive history item */
+/* History item */
 
 .history-item{
-    padding:8px 10px;
-    margin:6px 0;
-    background:#343541;
-    border-radius:6px;
-    cursor:pointer;
-    font-size:14px;
+padding:8px 10px;
+margin:6px 0;
+background:#343541;
+border-radius:6px;
+cursor:pointer;
+font-size:14px;
 
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-
-    transition:0.2s;
+display:flex;
+justify-content:space-between;
+align-items:center;
 }
 
 .history-item:hover{
-    background:#444654;
+background:#444654;
 }
 
 /* History text */
 
 .history-item span{
-    flex:1;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
+flex:1;
+overflow:hidden;
+text-overflow:ellipsis;
+white-space:nowrap;
 }
 
 /* Delete icon */
 
 .delete-icon{
-    margin-left:12px;
-    cursor:pointer;
-    color:#ff6b6b;
-    font-size:14px;
-    transition:0.2s;
+margin-left:12px;
+cursor:pointer;
+color:#ff6b6b;
+font-size:14px;
 }
 
 .delete-icon:hover{
-    color:#ff2b2b;
-}
-
-/* Main Chat */
-
-.chat-area{
-    flex:1;
-    display:flex;
-    flex-direction:column;
-}
-
-/* Header */
-
-.chat-header{
-    padding:15px 20px;
-    border-bottom:1px solid #ddd;
-    background:white;
-}
-
-/* Messages */
-
-.messages{
-    flex:1;
-    padding:25px;
-    overflow-y:auto;
-}
-
-/* Message bubbles */
-
-.message{
-    max-width:75%;
-    padding:14px;
-    margin-bottom:16px;
-    border-radius:10px;
-    line-height:1.5;
-}
-
-.user{
-    background:#dbeafe;
-    margin-left:auto;
-}
-
-.bot{
-    background:#e7f6ec;
-}
-
-/* News cards */
-
-.news-card{
-    background:white;
-    padding:15px;
-    border-radius:8px;
-    margin-top:10px;
-    box-shadow:0 2px 8px rgba(0,0,0,0.08);
-    transition:0.2s;
-}
-
-.news-card:hover{
-    transform:translateY(-2px);
-    box-shadow:0 6px 14px rgba(0,0,0,0.12);
-}
-
-.news-card h4{
-    margin:0 0 8px 0;
-}
-
-.news-card a{
-    color:#0077ff;
-    text-decoration:none;
-}
-
-.news-card a:hover{
-    text-decoration:underline;
-}
-
-/* Input area */
-
-.input-area{
-    display:flex;
-    padding:15px;
-    border-top:1px solid #ddd;
-    background:white;
-}
-
-.input-area input{
-    flex:1;
-    padding:12px;
-    font-size:15px;
-    border-radius:6px;
-    border:1px solid #ccc;
-}
-
-.input-area button{
-    margin-left:10px;
-    padding:12px 18px;
-    font-size:18px;
-    border:none;
-    border-radius:6px;
-    cursor:pointer;
-    background:#10a37f;
-    color:white;
-    transition:0.2s;
-}
-
-.input-area button:hover{
-    background:#0d8a6b;
-}
-
-/* Message animation */
-
-.animate{
-animation:fadeIn 0.4s ease;
-}
-
-@keyframes fadeIn{
-from{
-opacity:0;
-transform:translateY(10px);
-}
-to{
-opacity:1;
-transform:translateY(0);
-}
-}
-
-/* Spinner */
-
-.loading{
-display:flex;
-align-items:center;
-gap:10px;
+color:#ff2b2b;
 }
 
 /* Clear button */
@@ -237,4 +99,150 @@ font-size:13px;
 
 .clear-btn:hover{
 color:white;
+}
+
+/* Chat */
+
+.chat-area{
+flex:1;
+display:flex;
+flex-direction:column;
+}
+
+/* Header */
+
+.chat-header{
+padding:15px 20px;
+border-bottom:1px solid #ddd;
+background:white;
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+.menu-btn{
+display:none;
+background:none;
+border:none;
+font-size:22px;
+cursor:pointer;
+}
+
+.install-btn{
+margin-left:auto;
+background:#10a37f;
+color:white;
+border:none;
+padding:6px 12px;
+border-radius:6px;
+cursor:pointer;
+}
+
+/* Messages */
+
+.messages{
+flex:1;
+padding:25px;
+overflow-y:auto;
+}
+
+.message{
+max-width:75%;
+padding:14px;
+margin-bottom:16px;
+border-radius:10px;
+}
+
+.user{
+background:#dbeafe;
+margin-left:auto;
+}
+
+.bot{
+background:#e7f6ec;
+}
+
+/* News cards */
+
+.news-card{
+background:white;
+padding:15px;
+border-radius:8px;
+margin-top:10px;
+box-shadow:0 2px 8px rgba(0,0,0,0.08);
+}
+
+/* Input */
+
+.input-area{
+display:flex;
+padding:15px;
+border-top:1px solid #ddd;
+background:white;
+}
+
+.input-area input{
+flex:1;
+padding:12px;
+border-radius:6px;
+border:1px solid #ccc;
+}
+
+.input-area button{
+margin-left:10px;
+padding:12px 18px;
+border:none;
+border-radius:6px;
+background:#10a37f;
+color:white;
+}
+
+/* MOBILE */
+
+@media (max-width:768px){
+
+.menu-btn{
+display:block;
+}
+
+.sidebar{
+position:fixed;
+left:-260px;
+top:0;
+height:100%;
+transition:0.3s;
+z-index:1000;
+}
+
+.sidebar.active{
+left:0;
+}
+
+.app{
+flex-direction:column;
+}
+
+.messages{
+padding:15px;
+}
+
+.message{
+max-width:90%;
+}
+
+}
+
+@media (max-width:480px){
+
+.input-area{
+position:fixed;
+bottom:0;
+left:0;
+width:100%;
+}
+
+.messages{
+padding-bottom:80px;
+}
+
 }

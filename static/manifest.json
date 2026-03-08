@@ -1,0 +1,20 @@
+{
+"name": "GenAI News Explorer",
+"short_name": "NewsAI",
+"start_url": "/",
+"display": "standalone",
+"background_color": "#ffffff",
+"theme_color": "#10a37f",
+"icons": [
+{
+"src": "/static/images/launchericon-192x192.png",
+"sizes": "192x192",
+"type": "image/png"
+},
+{
+"src": "/static/images/launchericon-512x512.png",
+"sizes": "512x512",
+"type": "image/png"
+}
+]
+}
